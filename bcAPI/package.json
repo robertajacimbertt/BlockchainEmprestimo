@@ -1,0 +1,25 @@
+{
+  "name": "chain_api",
+  "version": "1.0.0",
+  "description": "Rest API to connect to hyperledger 1.0",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "hyperledger",
+    "node"
+  ],
+  "author": "Falcon",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.17.2",
+    "fabric-ca-client": "^1.0.1",
+    "fabric-client": "^1.0.0",
+    "grpc": "^1.4.1",
+    "ibm-ldap": "^2.0.0",
+    "ike-router": "^1.2.1",
+    "jsonwebtoken": "^7.4.3",
+    "yamler": "^1.0.1"
+  }
+}

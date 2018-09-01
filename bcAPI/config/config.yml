@@ -1,0 +1,10 @@
+environments:
+  development:
+    application:
+      port: 8080
+  production:
+    application:
+      port: 8080
+parameters:
+  token:
+    secret_key: "none"
