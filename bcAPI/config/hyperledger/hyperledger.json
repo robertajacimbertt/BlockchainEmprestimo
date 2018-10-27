@@ -2,45 +2,37 @@
     "credentials": {
         "network_id": "605d05e88a8843fd821f5f6de9a55ca6",
         "network_name": "com.ibm.assetchain.temp",
-        "orderers": [
-            {
-                "name": "fabric-orderer-19534a",
-                "discovery_url": "grpcs://fft-zbc07a.4.secure.blockchain.ibm.com:19534",
-                "msp_id": "OrdererOrg",
-                "tls_certificate": "cert_1"
-            }
-        ],
-        "cas": [
-            {
-                "name": "fabric-ca-26733a",
-                "api_url": "https://fft-zbc07a.4.secure.blockchain.ibm.com:26733",
-                "msp_id": "all",
-                "orgs": {
-                    "PeerOrg2": {
-                        "users": [
-                            {
-                                "affiliation": "group1",
-                                "enrollId": "admin",
-                                "enrollSecret": "06B2CC40CF"
-                            }
-                        ],
-                        "ca_name": "PeerOrg2CA",
-                        "privateKeyPEM": "LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tCk1JR0hBZ0VBTUJNR0J5cUdTTTQ5QWdFR0NDcUdTTTQ5QXdFSEJHMHdhd0lCQVFRZ3lsTzM0SUpDbFMyMHRORWUKMjNESGNnMGJDUG5kNFJHNWZreXlvNk5QTzl5aFJBTkNBQVRaVDZVWFRHeXlyS0R3cTZ3SWJGbS8zeXVwOUYwbQpGTmtSYUpvdHo5WDZtUGtNdmY4SFBQRThlV3VhWE9qcDBwZG5HbUZMUVRTcXlwYjBabXJLd3UwcgotLS0tLUVORCBQUklWQVRFIEtFWS0tLS0tCg==",
-                        "signedCertPEM": "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUJsRENDQVRxZ0F3SUJBZ0lVWkRnS1cyRk1mMHUzSVV4ZmxvZlRFN1EwVkVnd0NnWUlLb1pJemowRUF3SXcKR3pFWk1CY0dBMVVFQXhNUVlXUnRhVzVRWldWeVQzSm5Na05CTVRBZUZ3MHhOekEzTVRjeU1UTTBNREJhRncweApPREEzTVRjeU1UTTBNREJhTUJjeEZUQVRCZ05WQkFNVERHRmtiV2x1YldGdVlXZGxjakJaTUJNR0J5cUdTTTQ5CkFnRUdDQ3FHU000OUF3RUhBMElBQk5sUHBSZE1iTEtzb1BDcnJBaHNXYi9mSzZuMFhTWVUyUkZvbWkzUDFmcVkKK1F5OS93Yzg4VHg1YTVwYzZPblNsMmNhWVV0Qk5LcktsdlJtYXNyQzdTdWpZREJlTUE0R0ExVWREd0VCL3dRRQpBd0lDQkRBTUJnTlZIUk1CQWY4RUFqQUFNQjBHQTFVZERnUVdCQlEzSDdTMUYwTUVDS0hHTHNwTWFnL3RRU2t3CnVUQWZCZ05WSFNNRUdEQVdnQlFJeGI0RXJkU3dCYUZtNjZ0Zm1mQkdkK1ROTXpBS0JnZ3Foa2pPUFFRREFnTkkKQURCRkFpRUFnVTFRQlZkdVJSYmtaQmFNbnVXM0ppUnp1Yng3WXV5L3pDWHErZkxLeFAwQ0lBTUhsRUlJcmRQUApvZ2trVUx5cUpRYmlYcGltaUM0VmNGeEVYcmFiRWM3eAotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg=="
-                    }
-                },
-                "tls_certificate": "cert_1"
-            }
-        ],
-        "peers": [
-            {
-                "name": "fabric-peer-org2-25208a",
-                "discovery_url": "grpcs://fft-zbc07a.4.secure.blockchain.ibm.com:25208",
-                "event_url": "grpcs://fft-zbc07a.4.secure.blockchain.ibm.com:13760",
-                "msp_id": "PeerOrg2",
-                "tls_certificate": "cert_1"
-            }
-        ],
+        "orderers": [{
+            "name": "fabric-orderer-19534a",
+            "discovery_url": "grpcs://fft-zbc07a.4.secure.blockchain.ibm.com:19534",
+            "msp_id": "OrdererOrg",
+            "tls_certificate": "cert_1"
+        }],
+        "cas": [{
+            "name": "fabric-ca-26733a",
+            "api_url": "https://fft-zbc07a.4.secure.blockchain.ibm.com:26733",
+            "msp_id": "all",
+            "orgs": {
+                "PeerOrg1": {
+                    "users": [{
+                        "affiliation": "group1",
+                        "enrollId": "admin",
+                        "enrollSecret": "06B2CC40CF"
+                    }],
+                    "ca_name": "PeerOrg1CA",
+                    "privateKeyPEM": "LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tCk1JR0hBZ0VBTUJNR0J5cUdTTTQ5QWdFR0NDcUdTTTQ5QXdFSEJHMHdhd0lCQVFRZ3lsTzM0SUpDbFMyMHRORWUKMjNESGNnMGJDUG5kNFJHNWZreXlvNk5QTzl5aFJBTkNBQVRaVDZVWFRHeXlyS0R3cTZ3SWJGbS8zeXVwOUYwbQpGTmtSYUpvdHo5WDZtUGtNdmY4SFBQRThlV3VhWE9qcDBwZG5HbUZMUVRTcXlwYjBabXJLd3UwcgotLS0tLUVORCBQUklWQVRFIEtFWS0tLS0tCg==",
+                    "signedCertPEM": "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUJsRENDQVRxZ0F3SUJBZ0lVWkRnS1cyRk1mMHUzSVV4ZmxvZlRFN1EwVkVnd0NnWUlLb1pJemowRUF3SXcKR3pFWk1CY0dBMVVFQXhNUVlXUnRhVzVRWldWeVQzSm5Na05CTVRBZUZ3MHhOekEzTVRjeU1UTTBNREJhRncweApPREEzTVRjeU1UTTBNREJhTUJjeEZUQVRCZ05WQkFNVERHRmtiV2x1YldGdVlXZGxjakJaTUJNR0J5cUdTTTQ5CkFnRUdDQ3FHU000OUF3RUhBMElBQk5sUHBSZE1iTEtzb1BDcnJBaHNXYi9mSzZuMFhTWVUyUkZvbWkzUDFmcVkKK1F5OS93Yzg4VHg1YTVwYzZPblNsMmNhWVV0Qk5LcktsdlJtYXNyQzdTdWpZREJlTUE0R0ExVWREd0VCL3dRRQpBd0lDQkRBTUJnTlZIUk1CQWY4RUFqQUFNQjBHQTFVZERnUVdCQlEzSDdTMUYwTUVDS0hHTHNwTWFnL3RRU2t3CnVUQWZCZ05WSFNNRUdEQVdnQlFJeGI0RXJkU3dCYUZtNjZ0Zm1mQkdkK1ROTXpBS0JnZ3Foa2pPUFFRREFnTkkKQURCRkFpRUFnVTFRQlZkdVJSYmtaQmFNbnVXM0ppUnp1Yng3WXV5L3pDWHErZkxLeFAwQ0lBTUhsRUlJcmRQUApvZ2trVUx5cUpRYmlYcGltaUM0VmNGeEVYcmFiRWM3eAotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg=="
+                }
+            },
+            "tls_certificate": "cert_1"
+        }],
+        "peers": [{
+            "name": "fabric-peer-org1-25208a",
+            "discovery_url": "grpcs://fft-zbc07a.4.secure.blockchain.ibm.com:25208",
+            "event_url": "grpcs://fft-zbc07a.4.secure.blockchain.ibm.com:13760",
+            "msp_id": "PeerOrg1",
+            "tls_certificate": "cert_1"
+        }],
         "app": {
             "channel_id": "channel2",
             "chaincode_id": "assetcc2",

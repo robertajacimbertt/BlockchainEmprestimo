@@ -14,19 +14,19 @@ const options = {
 }
 
 class Enroll {
-  constructor() {}
+    constructor() {}
 
-  registerNewUser(req, res) {
-    let body = req.body
+    registerNewUser(req, res) {
+        let body = req.body
 
-    enrollHelper.registerNewUser(options, body)
-    .then((result) => {
-      res.status(200).send(result)
-    })
-    .catch(err => {
-      res.status(400).send(err)
-    })
-  }
+        enrollHelper.registerNewUser(options, body)
+            .then((result) => {
+                res.status(200).send(result)
+            })
+            .catch(err => {
+                res.status(400).send(err)
+            })
+    }
 }
 
 module.exports = Enroll
