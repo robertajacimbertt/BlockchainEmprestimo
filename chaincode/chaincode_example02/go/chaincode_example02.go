@@ -38,36 +38,208 @@ type SimpleChaincode struct {
 }
 
 func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
-	errors.New("-----------> ex02 Init")
+	fmt.Printf("-----------> ex02 Init")
 	_, args := stub.GetFunctionAndParameters()
-	var A, B string    // Entities
-	var Aval, Bval int // Asset holdings
+	var fin1, fin2, fin3, fin4, fin5, fin6, fin7, fin8, fin9, fin10 string 
+	var fin1val, fin2val, fin3val, fin4val, fin5val, fin6val, fin7val, fin8val, fin9val, fin10val int
+
+	var rede string    
+	var redeVal int 
+
+	var dev1, dev2, dev3, dev4, dev5, dev6, dev7 string 
+	var dev1val, dev2val, dev3val, dev4val, dev5val, dev6val, dev7val int
+
+	// type Person struct {
+	// 	name string
+	// 	value  string
+	// }
+	// var fins = []Person{
+	// 	Person{
+	// 		name: args[0],
+	// 		value, err: strconv.Atoi(args[1]),
+	// 	},
+	// }
 	var err error
 
-	if len(args) != 4 {
-		return shim.Error("Incorrect number of arguments. Expecting 4")
-	}
+	// if len(args) != 6 {
+	// 	return shim.Error("Incorrect number of arguments. Expecting 1997")
+	// }
+
+	// for _,x := range fins {
+	// 	fmt.Printf("%s has %d", x.name, x.value)
+	// }
 
 	// Initialize the chaincode
-	A = args[0]
-	Aval, err = strconv.Atoi(args[1])
-	if err != nil {
-		return shim.Error("Expecting integer value for asset holding")
-	}
-	B = args[2]
-	Bval, err = strconv.Atoi(args[3])
-	if err != nil {
-		return shim.Error("Expecting integer value for asset holding")
-	}
-	fmt.Println("Aval = %d, Bval = %d\n", Aval, Bval)
 
-	// Write the state to the ledger
-	err = stub.PutState(A, []byte(strconv.Itoa(Aval)))
+	// FINANCIADORES
+	fin1 = args[0]
+	fin1val, err = strconv.Atoi(args[1])
+	if err != nil {
+		return shim.Error("Expecting integer value for asset holding")
+	}
+	fin2 = args[2]
+	fin2val, err = strconv.Atoi(args[3])
+	if err != nil {
+		return shim.Error("Expecting integer value for asset holding")
+	}
+	fin3 = args[4]
+	fin3val, err = strconv.Atoi(args[5])
+	if err != nil {
+		return shim.Error("Expecting integer value for asset holding")
+	}
+	fin4 = args[6]
+	fin4val, err = strconv.Atoi(args[7])
+	if err != nil {
+		return shim.Error("Expecting integer value for asset holding")
+	}
+	fin5 = args[8]
+	fin5val, err = strconv.Atoi(args[9])
+	if err != nil {
+		return shim.Error("Expecting integer value for asset holding")
+	}
+	fin6 = args[10]
+	fin6val, err = strconv.Atoi(args[11])
+	if err != nil {
+		return shim.Error("Expecting integer value for asset holding")
+	}
+	fin7 = args[12]
+	fin7val, err = strconv.Atoi(args[13])
+	if err != nil {
+		return shim.Error("Expecting integer value for asset holding")
+	}
+	fin8 = args[14]
+	fin8val, err = strconv.Atoi(args[15])
+	if err != nil {
+		return shim.Error("Expecting integer value for asset holding")
+	}
+	fin9 = args[16]
+	fin9val, err = strconv.Atoi(args[17])
+	if err != nil {
+		return shim.Error("Expecting integer value for asset holding")
+	}
+	fin10 = args[18]
+	fin10val, err = strconv.Atoi(args[19])
+	if err != nil {
+		return shim.Error("Expecting integer value for asset holding")
+	}
+
+	fmt.Printf("********* fin1val = %d\n", fin1val)
+
+	err = stub.PutState(fin1, []byte(strconv.Itoa(fin1val)))
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	err = stub.PutState(fin2, []byte(strconv.Itoa(fin2val)))
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	err = stub.PutState(fin3, []byte(strconv.Itoa(fin3val)))
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	err = stub.PutState(fin4, []byte(strconv.Itoa(fin4val)))
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	err = stub.PutState(fin5, []byte(strconv.Itoa(fin5val)))
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	err = stub.PutState(fin6, []byte(strconv.Itoa(fin6val)))
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	err = stub.PutState(fin7, []byte(strconv.Itoa(fin7val)))
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	err = stub.PutState(fin8, []byte(strconv.Itoa(fin8val)))
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	err = stub.PutState(fin9, []byte(strconv.Itoa(fin9val)))
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	err = stub.PutState(fin10, []byte(strconv.Itoa(fin10val)))
 	if err != nil {
 		return shim.Error(err.Error())
 	}
 
-	err = stub.PutState(B, []byte(strconv.Itoa(Bval)))
+	// REDE
+	rede = args[20]
+	redeVal, err = strconv.Atoi(args[21])
+	if err != nil {
+		return shim.Error("Expecting integer value for asset holding rede")
+	}
+	err = stub.PutState(rede, []byte(strconv.Itoa(redeVal)))
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+
+	// DEVEDORES
+	dev1 = args[22]
+	dev1val, err = strconv.Atoi(args[23])
+	if err != nil {
+		return shim.Error("Expecting integer value for asset holding d1")
+	}
+	dev2 = args[24]
+	dev2val, err = strconv.Atoi(args[25])
+	if err != nil {
+		return shim.Error("Expecting integer value for asset holding d2")
+	}
+	dev3 = args[26]
+	dev3val, err = strconv.Atoi(args[27])
+	if err != nil {
+		return shim.Error("Expecting integer value for asset holding d3")
+	}
+	dev4 = args[28]
+	dev4val, err = strconv.Atoi(args[29])
+	if err != nil {
+		return shim.Error("Expecting integer value for asset holding d4")
+	}
+	dev5 = args[30]
+	dev5val, err = strconv.Atoi(args[31])
+	if err != nil {
+		return shim.Error("Expecting integer value for asset holding d5")
+	}
+	dev6 = args[32]
+	dev6val, err = strconv.Atoi(args[33])
+	if err != nil {
+		return shim.Error("Expecting integer value for asset holding d6")
+	}
+	dev7 = args[34]
+	dev7val, err = strconv.Atoi(args[35])
+	if err != nil {
+		return shim.Error("Expecting integer value for asset holding d7")
+	}
+
+	err = stub.PutState(dev1, []byte(strconv.Itoa(dev1val)))
+	if err != nil {
+		return shim.Error(err.Error())
+	}	
+	err = stub.PutState(dev2, []byte(strconv.Itoa(dev2val)))
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	err = stub.PutState(dev3, []byte(strconv.Itoa(dev3val)))
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	err = stub.PutState(dev4, []byte(strconv.Itoa(dev4val)))
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	err = stub.PutState(dev5, []byte(strconv.Itoa(dev5val)))
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	err = stub.PutState(dev6, []byte(strconv.Itoa(dev6val)))
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	err = stub.PutState(dev7, []byte(strconv.Itoa(dev7val)))
 	if err != nil {
 		return shim.Error(err.Error())
 	}
@@ -76,25 +248,25 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
 }
 
 func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
-	errors.New("-------> ex02 Invoke")
+	fmt.Println("-------> ex02 Invoke")
 	function, args := stub.GetFunctionAndParameters()
 	if function == "invoke" {
-		errors.New("-----> escolheu invoke")
+		fmt.Println("-----> escolheu invoke")
 		// Make payment of X units from A to B
 		return t.invoke(stub, args)
 	} else if function == "delete" {
-		errors.New("-----> escolheu delete")
+		fmt.Println("-----> escolheu delete")
 		// Deletes an entity from its state
 		return t.delete(stub, args)
 	} else if function == "query" {
-		errors.New("-----> escolheu query")
+		fmt.Println("-----> escolheu query")
 		// the old "Query" is now implemtned in invoke
 		return t.query(stub, args)
 	} else if function == "GetLoanApplication" {
-		errors.New("-----> escolheu GetLoanApplication")
+		fmt.Println("-----> escolheu GetLoanApplication")
 		return GetLoanApplication(stub, args)
 	} else if function == "getHistory" {
-		errors.New("-----> escolheu getHistory")
+		fmt.Println("-----> escolheu getHistory")
 		return getHistory(stub, args)
 	}
 
@@ -103,7 +275,7 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 
 // Transaction makes payment of X units from A to B
 func (t *SimpleChaincode) invoke(stub shim.ChaincodeStubInterface, args []string) pb.Response {
-	errors.New("-----> entrou no Invoke")
+	fmt.Println("-----> entrou no Invoke")
 	var A, B string    // Entities
 	var Aval, Bval int // Asset holdings
 	var X int          // Transaction value

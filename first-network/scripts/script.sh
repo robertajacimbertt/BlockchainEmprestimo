@@ -38,33 +38,48 @@ verifyResult () {
 }
 
 setGlobals () {
-
+	echo "----> VALOR EQ \"$1\" <-----"
 	if [ $1 -eq 0 -o $1 -eq 1 ] ; then
+		echo "--------> ORG1 CONDITION" 
 		CORE_PEER_LOCALMSPID="Org1MSP"
 		CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt
 		CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
 		if [ $1 -eq 0 ]; then
+			echo "PEER 0 org1"
 			CORE_PEER_ADDRESS=peer0.org1.example.com:7051
 		else
+			echo "PEER 1 org1"
 			CORE_PEER_ADDRESS=peer1.org1.example.com:7051
 		fi
-	# else
-		# CORE_PEER_LOCALMSPID="Org2MSP"
-		# CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt
-		# CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp
-		# if [ $1 -eq 2 ]; then
-		# 	CORE_PEER_ADDRESS=peer0.org2.example.com:7051
-		# else
-		# 	CORE_PEER_ADDRESS=peer1.org2.example.com:7051
-		# fi
+	elif [ $1 -eq 2 -o $1 -eq 3 ]; then 
+	# essa condicao ver
+		echo "--------> ORG2 CONDITION"
+		CORE_PEER_LOCALMSPID="Org2MSP"
+		CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt
+		CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp
+		if [ $1 -eq 2 ]; then
+			echo "PEER 0 org2"
+			CORE_PEER_ADDRESS=peer0.org2.example.com:7051
+		else
+			echo "PEER 1 org2"
+			CORE_PEER_ADDRESS=peer1.org2.example.com:7051
+		fi
+	else 
+		echo "--------> ORG3 CONDITION"
+		CORE_PEER_LOCALMSPID="Org3MSP"
+		CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org3.example.com/peers/peer0.org3.example.com/tls/ca.crt
+		CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org3.example.com/users/Admin@org3.example.com/msp
+		echo "PEER 0 org 3"
+		CORE_PEER_ADDRESS=peer0.org3.example.com:7051
 	fi
 
 	env |grep CORE
 }
 
 createChannel() {
+	echo "Veio do create channel"
 	setGlobals 0
-
+# -z verifica se o conteudo da variavel é zero ou 
   if [ -z "$CORE_PEER_TLS_ENABLED" -o "$CORE_PEER_TLS_ENABLED" = "false" ]; then
 		echo "Entrou no if"
 		peer channel create -o orderer.example.com:7050 -c $CHANNEL_NAME -f ./channel-artifacts/channel.tx >&log.txt
@@ -81,6 +96,7 @@ createChannel() {
 
 updateAnchorPeers() {
   PEER=$1
+  echo "Veio do update anchor peers "$PEER
   setGlobals $PEER
 
   if [ -z "$CORE_PEER_TLS_ENABLED" -o "$CORE_PEER_TLS_ENABLED" = "false" ]; then
@@ -113,7 +129,8 @@ joinWithRetry () {
 }
 
 joinChannel () {
-	for ch in 0 1; do
+	for ch in 0 1 2 3 4; do
+		echo "VEIO DO JOIN channel "$ch
 		setGlobals $ch
 		joinWithRetry $ch
 		echo "===================== PEER$ch joined on the channel \"$CHANNEL_NAME\" ===================== "
@@ -124,8 +141,9 @@ joinChannel () {
 
 installChaincode () {
 	PEER=$1
+	echo "VEIO DO install chaincode "$ch
 	setGlobals $PEER
-	peer chaincode install -n mycc -v 1.0 -l ${LANGUAGE} -p ${CC_SRC_PATH} >&log.txt
+	peer chaincode install -n mycc -v 1.3 -l ${LANGUAGE} -p ${CC_SRC_PATH} >&log.txt
 	res=$?
 	cat log.txt
         verifyResult $res "Chaincode installation on remote peer PEER$PEER has Failed"
@@ -135,15 +153,17 @@ installChaincode () {
 
 instantiateChaincode () {
 	PEER=$1
+	echo "VEIO DO instantiate chaincode "$PEER
 	setGlobals $PEER
 	# while 'peer chaincode' command can get the orderer endpoint from the peer (if join was successful),
 	# lets supply it directly as we know it using the "-o" option
 	if [ -z "$CORE_PEER_TLS_ENABLED" -o "$CORE_PEER_TLS_ENABLED" = "false" ]; then
 		echo "foi no if"
-		peer chaincode instantiate -o orderer.example.com:7050 -C $CHANNEL_NAME -n mycc -l ${LANGUAGE} -v 1.0 -c '{"Args":["init","a","100","b","200","c","50","d","900"]}' -P "OR	('Org1MSP.member)" >&log.txt
+		# Ao instanciar a chancode no channel, todos os users terao acesso aos assets da rede.entao ao iniciar a chaincode com os 10 usuários e quiser dar ideia de que cada usuário possui acesso a um assets desses apenas eu adiciono 10 assets e a cada vez que uma pessoa (user) de join na rede eu deveria dar um update na chaincode para adicionar um novo asset?
+		peer chaincode instantiate -o orderer.example.com:7050 -C $CHANNEL_NAME -n mycc -l ${LANGUAGE} -v 1.3 -c '{"Args":["init","fin1","0","fin2","0","fin3","0","fin4","0","fin5","0","fin6","0","fin7","0","fin8","0","fin9","0","fin10","0","rede","0","dev1","0","dev2","0","dev3","0","dev4","0","dev5","0","dev6","0","dev7","0"]}' -P "OR	('Org1MSP.member','Org2MSP.member','Org3MSP.member')" >&log.txt
 	else
 		echo "foi no else"
-		peer chaincode instantiate -o orderer.example.com:7050 --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA -C $CHANNEL_NAME -n mycc -l ${LANGUAGE} -v 1.0 -c '{"Args":["init","a","100","b","200","c","50","d","900"]}' -P "OR	('Org1MSP.member')" >&log.txt
+		peer chaincode instantiate -o orderer.example.com:7050 --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA -C $CHANNEL_NAME -n mycc -l ${LANGUAGE} -v 1.3 -c '{"Args":["init","fin1","0","fin2","0","fin3","0","fin4","0","fin5","0","fin6","0","fin7","0","fin8","0","fin9","0","fin10","0","rede","0","dev1","0","dev2","0","dev3","0","dev4","0","dev5","0","dev6","0","dev7","0"]}' -P "OR ('Org1MSP.member','Org2MSP.member','Org3MSP.member')" >&log.txt
 	fi
 	res=$?
 	cat log.txt
@@ -209,34 +229,52 @@ joinChannel
 ## Set the anchor peers for each org in the channel
 echo "Updating anchor peers for org1..."
 updateAnchorPeers 0
-# echo "Updating anchor peers for org2..."
-# updateAnchorPeers 2
+echo "Updating anchor peers for org2..."
+updateAnchorPeers 2
+echo "Updating anchor peers for org3..."
+updateAnchorPeers 4
 
 ## Install chaincode on Peer0/Org1 and Peer2/Org2
 echo "Installing chaincode on org1/peer0..."
 installChaincode 0
-# echo "Install chaincode on org2/peer2..."
-# installChaincode 2
+echo "Install chaincode on org1/peer1..."
+installChaincode 1
+echo "Install chaincode on org2/peer0..."
+installChaincode 2
+echo "Install chaincode on org2/peer1..."
+installChaincode 3
+echo "Install chaincode on org3/peer0..."
+installChaincode 4
+
+echo "STOPPED ON INSTANTIATE"
 
 #Instantiate chaincode on Peer2/Org2
-echo "Instantiating chaincode on org1/peer1..."
+echo "Instantiating chaincode on org1/peer0..."
 instantiateChaincode 0
+echo "Instantiating chaincode on org1/peer1..."
+instantiateChaincode 1
+echo "Instantiating chaincode on org2/peer0..."
+# instantiateChaincode 2
+echo "Instantiating chaincode on org2/peer1..."
+# instantiateChaincode 3
+echo "Instantiating chaincode on org3/peer0..."
+# instantiateChaincode 4
 
 #Query on chaincode on Peer0/Org1
-echo "Querying chaincode on org1/peer0..."
-chaincodeQuery 0 100
+# echo "Querying chaincode on org1/peer0..."
+# chaincodeQuery 0 100
 
 #Invoke on chaincode on Peer0/Org1
-echo "Sending invoke transaction on org1/peer0..."
-chaincodeInvoke 0
+# echo "Sending invoke transaction on org1/peer0..."
+# chaincodeInvoke 0
 
 ## Install chaincode on Peer3/Org2
 # echo "Installing chaincode on org2/peer3..."
 # installChaincode 3
 
 #Query on chaincode on Peer3/Org2, check if the result is 90
-echo "Querying chaincode on org1/peer0..."
-chaincodeQuery 0 90
+# echo "Querying chaincode on org1/peer0..."
+# chaincodeQuery 0 90
 
 echo
 echo "========= All GOOD, BYFN execution completed =========== "
