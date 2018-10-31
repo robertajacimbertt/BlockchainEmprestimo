@@ -172,7 +172,8 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
 	if err != nil {
 		return shim.Error("Expecting integer value for asset holding rede")
 	}
-	err = stub.PutState(rede, []byte(strconv.Itoa(redeVal)))
+
+	err = stub.PutState(rede, []byte(strconv.Itoa(redeVal)) )
 	if err != nil {
 		return shim.Error(err.Error())
 	}
@@ -250,10 +251,18 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
 func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 	fmt.Println("-------> ex02 Invoke")
 	function, args := stub.GetFunctionAndParameters()
-	if function == "invoke" {
-		fmt.Println("-----> escolheu invoke")
-		// Make payment of X units from A to B
-		return t.invoke(stub, args)
+	if function == "invokeFinanciador" {
+		fmt.Println("-----> escolheu invoke financiador")
+		// Make payment of X units from A to network
+		return t.invokeFinanciador(stub, args)
+	} else if function == "invokeDevedor" {
+		fmt.Println("-----> escolheu invoke devedor")
+		// Make payment of X units from network to A
+		return t.invokeDevedor(stub, args)
+	} else if function == "invokePagamentoDevedor" {
+		fmt.Println("-----> escolheu invoke pagamento do devedor")
+		// Implementa as regras de pagamento para o devedor (nao pode ficar com saldo menor que 0. pode pagar até zerar - em parcelas. )
+		return t.invokePagamentoDevedor(stub, args)
 	} else if function == "delete" {
 		fmt.Println("-----> escolheu delete")
 		// Deletes an entity from its state
@@ -273,50 +282,55 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 	return shim.Error("Invalid invoke function name. Expecting \"invoke\" \"delete\" \"query\"")
 }
 
-// Transaction makes payment of X units from A to B
-func (t *SimpleChaincode) invoke(stub shim.ChaincodeStubInterface, args []string) pb.Response {
-	// somente valor de A, quem é A. pois vai sempre mandar pra rede
+// Transaction makes payment of X units from A to network
+func (t *SimpleChaincode) invokeFinanciador(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	// somente valor de A. pois vai sempre mandar pra rede
 	fmt.Println("-----> entrou no Invoke")
-	var A, B string    // Entities
-	var Aval, Bval int // Asset holdings
+	var A, Rede string    // Entities
+	var Aval, Redeval int // Asset holdings
 	var X int          // Transaction value
 	var err error
 
-	if len(args) != 3 {
-		return shim.Error("Incorrect number of arguments. Expecting 3")
+	if len(args) != 2 {
+		return shim.Error("Incorrect number of arguments. Expecting 2 on invoke Financiador")
 	}
 
 	A = args[0]
-	B = args[1]
+	Rede = "rede"
 
 	// Get the state from the ledger
 	// TODO: will be nice to have a GetAllState call to ledger
 	Avalbytes, err := stub.GetState(A)
 	if err != nil {
-		return shim.Error("Failed to get state")
+		return shim.Error("Failed to get state from user")
 	}
 	if Avalbytes == nil {
-		return shim.Error("Entity not found")
+		return shim.Error("Entity user not found")
 	}
 	Aval, _ = strconv.Atoi(string(Avalbytes))
 
-	Bvalbytes, err := stub.GetState(B)
+	if Aval > 0 { //significa que o usuário já possui um emprestimo
+		return shim.Error("Usuário já possui um financiamento realizado, não será possivel realizar outro no momento.")
+	}
+
+	Redevalbytes, err := stub.GetState(Rede)
 	if err != nil {
-		return shim.Error("Failed to get state")
+		return shim.Error("Failed to get state from network")
 	}
-	if Bvalbytes == nil {
-		return shim.Error("Entity not found")
+	if Redevalbytes == nil {
+		return shim.Error("Entity network not found")
 	}
-	Bval, _ = strconv.Atoi(string(Bvalbytes))
+	Redeval, _ = strconv.Atoi(string(Redevalbytes))
 
 	// Perform the execution
-	X, err = strconv.Atoi(args[2])
+	X, err = strconv.Atoi(args[1])
 	if err != nil {
 		return shim.Error("Invalid transaction amount, expecting a integer value")
 	}
-	Aval = Aval - X
-	Bval = Bval + X
-	fmt.Println("Aval = %d, Bval = %d\n", Aval, Bval)
+
+	Aval = Aval + X
+	Redeval = Redeval + X
+	fmt.Println("User A val = %d, Network val = %d\n", Aval, Redeval)
 
 	// Write the state back to the ledger
 	err = stub.PutState(A, []byte(strconv.Itoa(Aval)))
@@ -324,7 +338,138 @@ func (t *SimpleChaincode) invoke(stub shim.ChaincodeStubInterface, args []string
 		return shim.Error(err.Error())
 	}
 
-	err = stub.PutState(B, []byte(strconv.Itoa(Bval)))
+	err = stub.PutState(Rede, []byte(strconv.Itoa(Redeval)))
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	return shim.Success(nil)
+}
+
+// Transaction makes payment of X units from A to network
+func (t *SimpleChaincode) invokeDevedor(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	// somente valor de A. pois vai sempre mandar pra rede
+	// desconta o valor da rede
+	fmt.Println("-----> entrou no Invoke devedor")
+	var A, Rede string    // Entities
+	var Aval, Redeval int // Asset holdings
+	var X int          // Transaction value
+	var err error
+
+	if len(args) != 2 {
+		return shim.Error("Incorrect number of arguments. Expecting 2 on invoke Devedor")
+	}
+
+	A = args[0]
+	Rede = "rede"
+
+	// Get the state from the ledger
+	// TODO: will be nice to have a GetAllState call to ledger
+	Avalbytes, err := stub.GetState(A)
+	if err != nil {
+		return shim.Error("Failed to get state from user")
+	}
+	if Avalbytes == nil {
+		return shim.Error("Entity user not found")
+	}
+	Aval, _ = strconv.Atoi(string(Avalbytes))
+
+	if Aval < 0 { //significa que o usuário já possui um emprestimo
+		return shim.Error("Usuário já possui um empréstimo realizado, não será possivel realizar outro no momento.")
+	}
+
+	Redevalbytes, err := stub.GetState(Rede)
+	if err != nil {
+		return shim.Error("Failed to get state from network")
+	}
+	if Redevalbytes == nil {
+		return shim.Error("Entity network not found")
+	}
+	Redeval, _ = strconv.Atoi(string(Redevalbytes))
+
+	// Perform the execution
+	X, err = strconv.Atoi(args[1])
+	if err != nil {
+		return shim.Error("Invalid transaction amount, expecting a integer value")
+	}
+
+	Aval = Aval - X
+	Redeval = Redeval - X
+	fmt.Println("User A val = %d, Network val = %d\n", Aval, Redeval)
+
+	// Write the state back to the ledger
+	err = stub.PutState(A, []byte(strconv.Itoa(Aval)))
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	err = stub.PutState(Rede, []byte(strconv.Itoa(Redeval)))
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	return shim.Success(nil)
+}
+
+func (t *SimpleChaincode) invokePagamentoDevedor(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	// somente valor de A. pois vai sempre mandar pra rede
+	// desconta o valor da rede
+	fmt.Println("-----> entrou no Invoke pagamento do devedor")
+	var A, Rede string    // Entities
+	var Aval, Redeval int // Asset holdings
+	var X int          // Transaction value
+	var err error
+
+	if len(args) != 2 {
+		return shim.Error("Incorrect number of arguments. Expecting 2 on invoke Devedor")
+	}
+
+	A = args[0]
+	Rede = "rede"
+
+	// Get the state from the ledger
+	// TODO: will be nice to have a GetAllState call to ledger
+	Avalbytes, err := stub.GetState(A)
+	if err != nil {
+		return shim.Error("Failed to get state from user")
+	}
+	if Avalbytes == nil {
+		return shim.Error("Entity user not found")
+	}
+	Aval, _ = strconv.Atoi(string(Avalbytes))
+
+	Redevalbytes, err := stub.GetState(Rede)
+	if err != nil {
+		return shim.Error("Failed to get state from network")
+	}
+	if Redevalbytes == nil {
+		return shim.Error("Entity network not found")
+	}
+	Redeval, _ = strconv.Atoi(string(Redevalbytes))
+
+	// Perform the execution
+	X, err = strconv.Atoi(args[1])
+	if err != nil {
+		return shim.Error("Invalid transaction amount, expecting a integer value")
+	}
+
+	if X < ( Aval * 1 ) {//se meu valor pago for menor que o valor que eu devo...
+		Aval = Aval + X
+		Redeval = Redeval + X
+	} else if X === ( Aval * 1 ) {
+		Aval = Aval + X
+		Redeval = Redeval + X
+	}//falta verificar se for ir abaixo de zero
+
+	fmt.Println("User A val = %d, Network val = %d\n", Aval, Redeval)
+
+	// Write the state back to the ledger
+	err = stub.PutState(A, []byte(strconv.Itoa(Aval)))
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	err = stub.PutState(Rede, []byte(strconv.Itoa(Redeval)))
 	if err != nil {
 		return shim.Error(err.Error())
 	}
@@ -360,7 +505,7 @@ func (t *SimpleChaincode) delete(stub shim.ChaincodeStubInterface, args []string
 
 // query callback representing the query of a chaincode
 func (t *SimpleChaincode) query(stub shim.ChaincodeStubInterface, args []string) pb.Response {
-	errors.New("-------> entra no query minusculo....")
+	errors.New("-------> entra no query ....")
 	var A string // Entities
 	var err error
 
@@ -368,7 +513,7 @@ func (t *SimpleChaincode) query(stub shim.ChaincodeStubInterface, args []string)
 		return shim.Error("Incorrect number of arguments. Expecting name of the person to query")
 	}
 
-	A = args[0]
+	A = args[0] // este argumento é o nome da pessoa, ela acessa o asset de mesmo nome
 
 	// Get the state from the ledger
 	Avalbytes, err := stub.GetState(A)
