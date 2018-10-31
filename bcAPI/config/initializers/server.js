@@ -38,7 +38,7 @@ function bootServer(config) {
         Http.setRequestHeader("Content-Type", "application/json")
         const data = {
             "fcn": "query",
-            "args": ["rede"]
+            "args": ["fin1"]
         };
         Http.send(JSON.stringify(data));
         Http.onreadystatechange = (e) => {

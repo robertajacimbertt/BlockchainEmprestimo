@@ -275,6 +275,7 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 
 // Transaction makes payment of X units from A to B
 func (t *SimpleChaincode) invoke(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	// somente valor de A, quem é A. pois vai sempre mandar pra rede
 	fmt.Println("-----> entrou no Invoke")
 	var A, B string    // Entities
 	var Aval, Bval int // Asset holdings
