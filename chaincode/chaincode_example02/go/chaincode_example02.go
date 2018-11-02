@@ -166,6 +166,19 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
 		return shim.Error(err.Error())
 	}
 
+	// type Employee struct {
+	// 	Name string `json:"empname"`
+	// 	Number int  `json:"empid"`
+	// }
+
+	// emp := &Employee{Name: "Rocky",Number: 5454}
+    // e, err := json.Marshal(emp)
+    // if err != nil {
+    //     fmt.Println(err)
+    //     return shim.Error("Nao deu certo")
+    // }
+    // fmt.Println(string(e))
+
 	// REDE
 	rede = args[20]
 	redeVal, err = strconv.Atoi(args[21])
@@ -175,6 +188,7 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
 
 	err = stub.PutState(rede, []byte(strconv.Itoa(redeVal)) )
 	if err != nil {
+		fmt.Printf("DEU ERRO NA HORA DE ADD O ASSET NA REDE")
 		return shim.Error(err.Error())
 	}
 
@@ -263,6 +277,9 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 		fmt.Println("-----> escolheu invoke pagamento do devedor")
 		// Implementa as regras de pagamento para o devedor (nao pode ficar com saldo menor que 0. pode pagar até zerar - em parcelas. )
 		return t.invokePagamentoDevedor(stub, args)
+	} else if function == "invokePagamentoFinanciadores" {
+		fmt.Println("-----> escolheu invoke invokePagamentoFinanciadores")
+		return t.invokePagamentoFinanciadores(stub, args)
 	} else if function == "delete" {
 		fmt.Println("-----> escolheu delete")
 		// Deletes an entity from its state
@@ -328,6 +345,10 @@ func (t *SimpleChaincode) invokeFinanciador(stub shim.ChaincodeStubInterface, ar
 		return shim.Error("Invalid transaction amount, expecting a integer value")
 	}
 
+	// aqui alem de verificar os usuários eu tbm preciso 
+	// Gravar o nome de quem enviou a informacao (nome do asset)
+	// Gravar o valor em X (valor da transacao)
+
 	Aval = Aval + X
 	Redeval = Redeval + X
 	fmt.Println("User A val = %d, Network val = %d\n", Aval, Redeval)
@@ -346,7 +367,7 @@ func (t *SimpleChaincode) invokeFinanciador(stub shim.ChaincodeStubInterface, ar
 	return shim.Success(nil)
 }
 
-// Transaction makes payment of X units from A to network
+// Transaction makes payment of X units from network to A
 func (t *SimpleChaincode) invokeDevedor(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	// somente valor de A. pois vai sempre mandar pra rede
 	// desconta o valor da rede
@@ -411,6 +432,7 @@ func (t *SimpleChaincode) invokeDevedor(stub shim.ChaincodeStubInterface, args [
 	return shim.Success(nil)
 }
 
+// Transaction makes payment of X units from A to network
 func (t *SimpleChaincode) invokePagamentoDevedor(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	// somente valor de A. pois vai sempre mandar pra rede
 	// desconta o valor da rede
@@ -451,15 +473,22 @@ func (t *SimpleChaincode) invokePagamentoDevedor(stub shim.ChaincodeStubInterfac
 	X, err = strconv.Atoi(args[1])
 	if err != nil {
 		return shim.Error("Invalid transaction amount, expecting a integer value")
-	}
+	} else if X == 0 {
+		return shim.Error("Invalid transaction amount, zero is not allowed")
+	} 
 
-	if X < ( Aval * 1 ) {//se meu valor pago for menor que o valor que eu devo...
+	if X < ( Aval * -1 ) { // se meu valor pago for menor que o valor que eu devo...
+		fmt.Println("--> Valor menor")
 		Aval = Aval + X
 		Redeval = Redeval + X
-	} else if X === ( Aval * 1 ) {
+	} else if X == ( Aval * -1 ) {
+		fmt.Println("--> Valor igual")
 		Aval = Aval + X
 		Redeval = Redeval + X
-	}//falta verificar se for ir abaixo de zero
+	} else if X > ( Aval * -1 ) {
+		fmt.Println("--> Valor maior")
+		return shim.Error("Valor invalido. Maior que o esperado")
+	}
 
 	fmt.Println("User A val = %d, Network val = %d\n", Aval, Redeval)
 
@@ -475,6 +504,87 @@ func (t *SimpleChaincode) invokePagamentoDevedor(stub shim.ChaincodeStubInterfac
 	}
 
 	return shim.Success(nil)
+}
+
+// Transaction makes payment of X units from Network to All fin's
+func (t *SimpleChaincode) invokePagamentoFinanciadores(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	// somente valor de A. pois vai sempre mandar pra rede
+	// desconta o valor da rede
+	fmt.Println("-----> entrou no Invoke pagamento para os financiadores")
+	var Rede string    // Entities
+	var Redeval int // Asset holdings
+	var err error
+
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 2 on invoke pagamento financiadores")
+	}
+
+	Rede = "rede"
+
+	Redevalbytes, err := stub.GetState(Rede)
+	if err != nil {
+		return shim.Error("Failed to get state from network")
+	}
+	if Redevalbytes == nil {
+		return shim.Error("Entity network not found")
+	}
+	Redeval, _ = strconv.Atoi(string(Redevalbytes)) //pego quanto a rede tem
+	fmt.Println("Network value = %d\n", Redeval)
+
+	var keys []string
+	// var values []int
+	if Redeval > 0 {
+		//pego todos os assets da rede
+		var startKey string
+		var endKey string 
+
+		keysIter, err := stub.GetStateByRange(startKey, endKey)
+		if err != nil {
+			return shim.Error(fmt.Sprintf("keys operation failed. Error accessing state: %s", err))
+		}
+		// defer keysIter.Close()
+		
+		for keysIter.HasNext() {
+			key, iterErr := keysIter.Next()
+			if iterErr != nil {
+				return shim.Error(fmt.Sprintf("keys operation failed. Error accessing state: %s", err))
+			}
+			
+			var key2 string
+			var value []byte
+			var value2 string
+
+			key2 = key.GetKey() 
+			value = key.GetValue() 
+			value2 = string(value)
+			keys = append(keys, key2, value2)
+		}
+
+		// Avalbytes, err := stub.GetState(A)
+
+		//itero pra saber a quantidade
+		//divido o valor da rede para a quantidade de assets que tem o nome fin e saldo > 0
+		//se for fin e saldo maior que 0
+			//se a parcela dele for menor ou igual o valor que ele investiu altera o saldo 
+			//se nao pega o valor que é de vdd
+			//a sobra fica pra proxima
+	} else {
+		return shim.Error("O valor da rede nao é suficiente para pagar os financiadores")
+	}	
+
+
+	// Write the state back to the ledger
+	// err = stub.PutState(A, []byte(strconv.Itoa(Aval)))
+	// if err != nil {
+	// 	return shim.Error(err.Error())
+	// }
+
+	// err = stub.PutState(Rede, []byte(strconv.Itoa(Redeval)))
+	// if err != nil {
+	// 	return shim.Error(err.Error())
+	// }
+	teste, _ := json.Marshal(keys)
+	return shim.Success(teste)
 }
 
 // Deletes an entity from state
@@ -572,6 +682,12 @@ func GetLoanApplication(stub shim.ChaincodeStubInterface, args []string) pb.Resp
 	// 	return  err
 	}
 	return shim.Success(bytes)
+}
+
+type s struct {
+	Int       int
+	String    string
+	ByteSlice []byte
 }
 
 func main() {
